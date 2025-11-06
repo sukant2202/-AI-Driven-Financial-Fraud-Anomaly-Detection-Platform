@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: fraud-detection-app
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: RENDER
+        value: true
+    healthCheckPath: /
+    plan: free
+

@@ -4,35 +4,97 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Credit Card Fraud Detection</title>
-
-  <!-- Modern, presentation-ready styling -->
   <style>
     :root{
       --card-w: 420px;
-      --accent: #28a745;
-      --accent-dark: #218838;
-      --fraud: #ff4d4f;
-      --fraud-dark: #b30000;
-      --bg-1: #eef6fb;
-      --bg-2: #f6fbf3;
-      --glass: rgba(255,255,255,0.92);
-      --muted: #6b7280;
+      --accent: #6366f1;
+      --accent-dark: #4f46e5;
+      --fraud: #ef4444;
+      --fraud-dark: #dc2626;
+      --legit: #10b981;
+      --legit-dark: #059669;
+      --bg-1: #f8fafc;
+      --bg-2: #f1f5f9;
+      --glass: rgba(255,255,255,0.95);
+      --muted: #64748b;
+      --text: #1e293b;
     }
 
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Inter, "Segoe UI", Arial, sans-serif;color:#222}
+    *{box-sizing:border-box; margin:0; padding:0}
+    html,body{height:100%; font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color:var(--text)}
 
     body{
-      background: linear-gradient(140deg, var(--bg-1) 0%, #f7f9fc 45%, #ffffff 100%);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .header {
+      max-width: 1100px;
+      margin: 0 auto 30px;
+      background: var(--glass);
+      border-radius: 16px;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .header-info h2 {
+      font-size: 18px;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .header-info p {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .logout-btn {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, var(--fraud), var(--fraud-dark));
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .logout-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
     }
 
     .page {
       width:100%;
       max-width:1100px;
+      margin: 0 auto;
       display:flex;
       gap:36px;
       align-items:flex-start;
@@ -40,144 +102,218 @@
       flex-wrap:wrap;
     }
 
-    /* Left: card with form */
     .card {
       width:var(--card-w);
       background:var(--glass);
-      border-radius:16px;
-      padding:28px;
-      box-shadow: 0 12px 30px rgba(16,24,40,0.12);
-      border: 1px solid rgba(20,20,30,0.03);
+      border-radius:20px;
+      padding:32px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+      border: 1px solid rgba(255,255,255,0.2);
       transform: translateY(0);
-      transition: transform .28s ease;
+      transition: transform .3s ease, box-shadow .3s ease;
+      backdrop-filter: blur(10px);
     }
-    .card:hover{ transform: translateY(-6px) }
+    .card:hover{ transform: translateY(-8px); box-shadow: 0 16px 50px rgba(0,0,0,0.2) }
 
     .brand {
       display:flex;
-      gap:12px;
+      gap:14px;
       align-items:center;
-      margin-bottom:14px;
+      margin-bottom:20px;
     }
     .logo {
-      width:48px;height:48px;border-radius:10px;
+      width:56px;height:56px;border-radius:14px;
       display:flex;align-items:center;justify-content:center;
       background:linear-gradient(135deg,var(--accent), var(--accent-dark));
-      color:white;font-weight:700; font-size:18px;
-      box-shadow: 0 6px 18px rgba(40,167,69,0.18);
+      color:white;font-weight:700; font-size:22px;
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
     }
-    h1 { margin:0;font-size:20px;letter-spacing:0.2px }
-    p.subtitle { margin:6px 0 18px;color:var(--muted);font-size:13px }
+    h1 { margin:0;font-size:24px;letter-spacing:0.2px; color:var(--text) }
+    p.subtitle { margin:6px 0 20px;color:var(--muted);font-size:14px }
 
-    label{ display:block; font-weight:600; font-size:13px; margin-top:10px; color:#111 }
+    label{ display:block; font-weight:600; font-size:14px; margin-top:16px; margin-bottom:8px; color:var(--text) }
     input[type=number]{
       width:100%;
-      padding:10px 12px;
-      margin-top:6px;
-      border-radius:8px;
-      border:1px solid #e6e9ef;
-      background:white;
-      font-size:14px;
+      padding:12px 16px;
+      border-radius:10px;
+      border:2px solid #e2e8f0;
+      background:#f8fafc;
+      font-size:15px;
       outline:none;
-      transition: box-shadow .12s, border-color .12s;
+      transition: all .2s ease;
     }
     input[type=number]:focus{
-      border-color: rgba(40,167,69,0.6);
-      box-shadow: 0 6px 18px rgba(40,167,69,0.06);
+      border-color: var(--accent);
+      background:white;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     }
 
     .btn {
       display:inline-block;
-      margin-top:18px;
+      margin-top:24px;
       width:100%;
-      padding:12px;
-      border-radius:10px;
-      background: linear-gradient(180deg,var(--accent), var(--accent-dark));
+      padding:14px;
+      border-radius:12px;
+      background: linear-gradient(135deg,var(--accent), var(--accent-dark));
       color:white;
       font-weight:700;
       border:none;
       cursor:pointer;
-      font-size:15px;
-      transition: transform .12s ease, box-shadow .12s ease;
+      font-size:16px;
+      transition: all .3s ease;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
     }
-    .btn:active{ transform: translateY(1px) }
-    .btn:focus{ outline: none; box-shadow: 0 8px 24px rgba(40,167,69,0.14) }
+    .btn:hover{ transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4) }
+    .btn:active{ transform: translateY(0) }
 
-    /* Right: details & visually pleasing result area for presentation */
     .side {
       width: 420px;
       max-width: 100%;
       display:flex;
       flex-direction:column;
-      gap:18px;
+      gap:20px;
       align-items:stretch;
     }
 
     .panel {
       background:var(--glass);
-      padding:18px;
-      border-radius:14px;
-      box-shadow: 0 10px 26px rgba(16,24,40,0.06);
-      border: 1px solid rgba(20,20,30,0.03);
+      padding:24px;
+      border-radius:18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
     }
 
-    .panel h3 { margin:0 0 8px 0; font-size:15px }
-    .meta { color:var(--muted); font-size:13px; margin-bottom:6px }
+    .panel h3 { margin:0 0 12px 0; font-size:18px; color:var(--text) }
+    .meta { color:var(--muted); font-size:13px; margin-bottom:8px; line-height:1.6 }
 
-    /* Result card */
     .result {
       display:flex;
-      gap:14px;
+      gap:16px;
       align-items:center;
-      padding:14px;
-      border-radius:12px;
+      padding:18px;
+      border-radius:14px;
       font-weight:700;
-      font-size:15px;
+      font-size:16px;
+      margin-bottom:16px;
     }
-    .result.legit { background: linear-gradient(90deg,#eaf6ea,#d4edda); color: #125b2a; border:1px solid rgba(18,91,42,0.06) }
-    .result.fraud { background: linear-gradient(90deg,#ffecec,#ffcccc); color: #7f0f0f; border:1px solid rgba(127,15,15,0.06) }
+    .result.legit { background: linear-gradient(135deg,#d1fae5,#a7f3d0); color: #065f46; border:2px solid rgba(16,185,129,0.2) }
+    .result.fraud { background: linear-gradient(135deg,#fee2e2,#fecaca); color: #991b1b; border:2px solid rgba(239,68,68,0.2) }
 
     .result .icon {
-      width:38px;height:38px;border-radius:8px;display:grid;place-items:center;font-size:18px;color:white;
+      width:48px;height:48px;border-radius:12px;display:grid;place-items:center;font-size:24px;
+      flex-shrink:0;
     }
-    .result.legit .icon { background: linear-gradient(180deg,#2ecc71,#28a745) }
-    .result.fraud .icon { background: linear-gradient(180deg,#ff6b6b,#ff4d4f) }
+    .result.legit .icon { background: linear-gradient(135deg,var(--legit),var(--legit-dark)); box-shadow: 0 4px 12px rgba(16,185,129,0.3) }
+    .result.fraud .icon { background: linear-gradient(135deg,var(--fraud),var(--fraud-dark)); box-shadow: 0 4px 12px rgba(239,68,68,0.3) }
 
-    .explain { font-size:13px; color:var(--muted); line-height:1.45; margin-top:8px }
+    .prob-section {
+      margin-top: 16px;
+    }
 
-    /* small probability bar (works if you pass 'prediction_prob' from Flask) */
-    .prob-row { margin-top:10px; display:flex; gap:10px; align-items:center; }
+    .prob-item {
+      margin-bottom: 12px;
+    }
+
+    .prob-label-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    .prob-label {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .prob-value {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
     .bar {
-      height:12px; background:#f1f5f9; border-radius:8px; flex:1; overflow:hidden; position:relative;
-      border:1px solid rgba(0,0,0,0.03);
+      height:14px; 
+      background:#e2e8f0; 
+      border-radius:8px; 
+      overflow:hidden; 
+      position:relative;
+      border:1px solid rgba(0,0,0,0.05);
     }
-    .bar .fill { height:100%; width:0%; border-radius:8px; transition: width .8s ease; }
-    .bar .fill.legit { background: linear-gradient(90deg,#9be7b6,#28a745) }
-    .bar .fill.fraud { background: linear-gradient(90deg,#ffb3b3,#ff4d4f) }
-    .prob-label { width:68px; font-size:13px; color:var(--muted); text-align:right }
+    .bar .fill { 
+      height:100%; 
+      width:0%; 
+      border-radius:8px; 
+      transition: width 1s ease; 
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .bar .fill.legit { background: linear-gradient(90deg,var(--legit),var(--legit-dark)) }
+    .bar .fill.fraud { background: linear-gradient(90deg,var(--fraud),var(--fraud-dark)) }
 
-    footer { margin-top:14px; text-align:center; color:var(--muted); font-size:13px }
+    .explain { font-size:13px; color:var(--muted); line-height:1.6; margin-top:16px; padding-top:16px; border-top:1px solid #e2e8f0 }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .alert-success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .alert-error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    footer { margin-top:20px; text-align:center; color:var(--muted); font-size:12px; padding-top:20px; border-top:1px solid #e2e8f0 }
+
     @media(max-width:920px){
-      .page{ padding:14px; gap:18px; justify-content:center }
+      .page{ gap:20px }
       .side{ width: 100%; }
+      .card { width: 100%; }
+      .header { flex-direction: column; gap: 12px; text-align: center; }
     }
   </style>
 </head>
 <body>
-  <div class="page">
+  <div class="header">
+    <div class="header-left">
+      <div class="header-logo">🔒</div>
+      <div class="header-info">
+        <h2>Fraud Detection System</h2>
+        <p>Welcome, {{ username }}!</p>
+      </div>
+    </div>
+    <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+  </div>
 
-    <!-- Left: form card -->
+  <div class="page">
     <div class="card" role="region" aria-label="Prediction form">
       <div class="brand">
-        <div class="logo">CC</div>
+        <div class="logo">💳</div>
         <div>
           <h1>Credit Card Fraud Detection</h1>
           <p class="subtitle">Enter transaction values to check if it looks suspicious.</p>
         </div>
       </div>
 
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
       <form action="/predict" method="post" id="predictForm">
-        <!-- Keep exact order expected by your model -->
         <label for="time">Time</label>
         <input id="time" name="time" type="number" step="any" placeholder="e.g. 10000" required>
 
@@ -190,24 +326,20 @@
         <label for="amount">Amount</label>
         <input id="amount" name="amount" type="number" step="any" placeholder="e.g. 250.50" required>
 
-        <button class="btn" type="submit">Predict</button>
+        <button class="btn" type="submit">🔍 Analyze Transaction</button>
       </form>
 
-      <!-- If you want to show a short note about the dataset/training -->
       <p class="explain">Note: Model trained on the Kaggle credit-card dataset (MLP). For best results use scaled features from the same distribution.</p>
     </div>
 
-    <!-- Right: presentation panels -->
     <div class="side">
       <div class="panel">
-        <h3>Prediction Result</h3>
+        <h3>📊 Prediction Result</h3>
 
-        <!-- Jinja: your existing `prediction_text` will appear here -->
         {% if prediction_text %}
-          <!-- Add class 'fraud' or 'legit' based on prediction_text content -->
-          <div id="resultCard" class="result {% if 'Fraud' in prediction_text %}fraud{% else %}legit{% endif %}">
+          <div id="resultCard" class="result {% if is_fraud %}fraud{% else %}legit{% endif %}">
             <div class="icon">
-              {% if 'Fraud' in prediction_text %}
+              {% if is_fraud %}
                 ⚠️
               {% else %}
                 ✅
@@ -216,59 +348,97 @@
             <div id="resultText">{{ prediction_text }}</div>
           </div>
 
-          <!-- Probability bar (optional): Flask can pass prediction_prob (0..1) to fill this -->
-          <div class="prob-row" aria-hidden="true">
-            <div class="prob-label">Confidence</div>
-            <div class="bar" aria-hidden="true">
-              <!-- fill width set by JS below if prediction_prob present -->
-              <div id="probFill" class="fill {% if 'Fraud' in prediction_text %}fraud{% else %}legit{% endif %}" style="width:0%"></div>
+          <div class="prob-section">
+            <div class="prob-item">
+              <div class="prob-label-row">
+                <span class="prob-label">Confidence</span>
+                <span class="prob-value" id="confidenceText">--</span>
+              </div>
+              <div class="bar">
+                <div id="confidenceFill" class="fill {% if is_fraud %}fraud{% else %}legit{% endif %}" style="width:0%"></div>
+              </div>
             </div>
-            <div style="width:56px;text-align:right;color:var(--muted);font-size:13px" id="probText">--</div>
+
+            <div class="prob-item">
+              <div class="prob-label-row">
+                <span class="prob-label">Legitimate Probability</span>
+                <span class="prob-value" id="legitProbText">--</span>
+              </div>
+              <div class="bar">
+                <div class="fill legit" id="legitFill" style="width:0%"></div>
+              </div>
+            </div>
+
+            <div class="prob-item">
+              <div class="prob-label-row">
+                <span class="prob-label">Fraud Probability</span>
+                <span class="prob-value" id="fraudProbText">--</span>
+              </div>
+              <div class="bar">
+                <div class="fill fraud" id="fraudFill" style="width:0%"></div>
+              </div>
+            </div>
           </div>
         {% else %}
-          <div class="meta">No prediction yet. Enter values on the left and click Predict.</div>
+          <div class="meta">No prediction yet. Enter values on the left and click "Analyze Transaction" to get started.</div>
         {% endif %}
       </div>
 
       <div class="panel">
-        <h3>How to demo (quick)</h3>
-        <div class="meta">Use these example inputs for testing during your presentation.</div>
-        <ul style="margin:8px 0 0 18px;color:var(--muted);line-height:1.6">
-  <li><strong>Fraud:</strong> Time=10000, V1=-1.3598, V2=-0.0728, Amount=149.62</li>
-  <li><strong>Legit:</strong> Time=40648, V1=1.191857, V2=0.266151, Amount=0.00</li>
-</ul>
-
+        <h3>💡 Quick Test Examples</h3>
+        <div class="meta">Use these example inputs for testing:</div>
+        <ul style="margin:12px 0 0 20px;color:var(--muted);line-height:1.8;font-size:13px">
+          <li><strong style="color:var(--fraud)">Fraud:</strong> Time=10000, V1=-1.3598, V2=-0.0728, Amount=149.62</li>
+          <li><strong style="color:var(--legit)">Legit:</strong> Time=40648, V1=1.191857, V2=0.266151, Amount=0.00</li>
+        </ul>
       </div>
 
-      <footer>Prepared for presentation • Model: MLP (PyTorch) • Dataset: Kaggle Credit Card</footer>
+      <footer>Powered by PyTorch MLP • Dataset: Kaggle Credit Card Fraud</footer>
     </div>
   </div>
 
-  <!-- Tiny script to set probability bar if Flask provides 'prediction_prob' -->
   <script>
     (function(){
-      // If server passes a numeric prediction_prob (0..1), fill the bar and label.
-      // In Flask you can do: render_template('index.html', prediction_text=..., prediction_prob=0.78)
-      var probFill = document.getElementById('probFill');
-      var probText = document.getElementById('probText');
-
-      // Jinja will render prediction_prob if present; otherwise it stays undefined.
       {% if prediction_prob is defined %}
-        var p = {{ prediction_prob }}; // number 0..1
-        var percent = Math.round(p * 100) + '%';
-        if (probFill) {
-          probFill.style.width = percent;
-          probText.textContent = percent;
+        var confidence = {{ prediction_prob }} * 100;
+        var confidencePercent = Math.round(confidence) + '%';
+        
+        var confidenceFill = document.getElementById('confidenceFill');
+        var confidenceText = document.getElementById('confidenceText');
+        if (confidenceFill && confidenceText) {
+          setTimeout(function() {
+            confidenceFill.style.width = confidencePercent;
+            confidenceText.textContent = confidencePercent;
+          }, 100);
         }
-      {% else %}
-        // no prob given: hide text or show N/A
-        if (probText) probText.textContent = "N/A";
       {% endif %}
+
+      {% if legit_prob is defined %}
+        var legitProb = {{ legit_prob }};
+        var legitPercent = Math.round(legitProb) + '%';
+        var legitFill = document.getElementById('legitFill');
+        var legitProbText = document.getElementById('legitProbText');
+        if (legitFill && legitProbText) {
+          setTimeout(function() {
+            legitFill.style.width = legitPercent;
+            legitProbText.textContent = legitPercent;
+          }, 200);
+        }
+      {% endif %}
+
+      {% if fraud_prob is defined %}
+        var fraudProb = {{ fraud_prob }};
+        var fraudPercent = Math.round(fraudProb) + '%';
+        var fraudFill = document.getElementById('fraudFill');
+        var fraudProbText = document.getElementById('fraudProbText');
+        if (fraudFill && fraudProbText) {
+          setTimeout(function() {
+            fraudFill.style.width = fraudPercent;
+            fraudProbText.textContent = fraudPercent;
+          }, 300);
+          }
+        {% endif %}
     })();
   </script>
 </body>
 </html>
-
-
-
-

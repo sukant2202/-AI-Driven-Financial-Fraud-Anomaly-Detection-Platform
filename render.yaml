@@ -2,7 +2,7 @@ services:
   - type: web
     name: fraud-detection-app
     env: python
-    runtime: python
+    runtime: python-3.11
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn --bind 0.0.0.0:$PORT app:app
     envVars:

@@ -18,8 +18,11 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message = 'Please log in to access this page.'
 
-# Database setup
-DATABASE = 'users.db'
+# Database setup - Use /tmp for Vercel (writable) or local for development
+if os.environ.get('VERCEL') == '1':
+    DATABASE = '/tmp/users.db'
+else:
+    DATABASE = 'users.db'
 
 def init_db():
     """Initialize the database with users table"""
@@ -56,28 +59,36 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-# ✅ Load scaler
-scaler = joblib.load("scaler.pkl")
+# ✅ Load scaler and model (handle paths for Vercel)
+def load_model_assets():
+    """Load model and scaler - handles both local and Vercel paths"""
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    scaler_path = os.path.join(base_path, "scaler.pkl")
+    model_path = os.path.join(base_path, "fraud_model_state.pth")
+    
+    scaler = joblib.load(scaler_path)
+    
+    class FraudMLP(nn.Module):
+        def __init__(self, in_dim=4, hidden=64, out_dim=2):
+            super().__init__()
+            self.fc1 = nn.Linear(in_dim, hidden)
+            self.fc2 = nn.Linear(hidden, hidden)
+            self.fc3 = nn.Linear(hidden, out_dim)
 
-# ✅ Define same MLP model used during training (hidden = 64)
-class FraudMLP(nn.Module):
-    def __init__(self, in_dim=4, hidden=64, out_dim=2):
-        super().__init__()
-        self.fc1 = nn.Linear(in_dim, hidden)
-        self.fc2 = nn.Linear(hidden, hidden)
-        self.fc3 = nn.Linear(hidden, out_dim)
+        def forward(self, x):
+            x = F.relu(self.fc1(x))
+            x = F.dropout(x, 0.3, self.training)
+            x = F.relu(self.fc2(x))
+            x = self.fc3(x)
+            return x
+    
+    model = FraudMLP()
+    model.load_state_dict(torch.load(model_path, map_location="cpu"))
+    model.eval()
+    
+    return scaler, model
 
-    def forward(self, x):
-        x = F.relu(self.fc1(x))
-        x = F.dropout(x, 0.3, self.training)
-        x = F.relu(self.fc2(x))
-        x = self.fc3(x)
-        return x
-
-# ✅ Load trained model (make sure file exists)
-model = FraudMLP()
-model.load_state_dict(torch.load("fraud_model_state.pth", map_location="cpu"))
-model.eval()
+scaler, model = load_model_assets()
 
 # Routes
 @app.route('/')

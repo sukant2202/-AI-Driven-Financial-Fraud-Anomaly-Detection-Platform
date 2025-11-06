@@ -18,10 +18,15 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message = 'Please log in to access this page.'
 
-# Database setup - Use /tmp for Vercel (writable) or local for development
-if os.environ.get('VERCEL') == '1':
+# Database setup - Use persistent path for production (Render) or local for development
+if os.environ.get('RENDER'):
+    # Render provides persistent disk storage
+    DATABASE = os.path.join(os.environ.get('RENDER_DISK_PATH', '/opt/render/project/src'), 'users.db')
+elif os.environ.get('VERCEL') == '1':
+    # Vercel uses /tmp (ephemeral)
     DATABASE = '/tmp/users.db'
 else:
+    # Local development
     DATABASE = 'users.db'
 
 def init_db():
@@ -225,6 +230,8 @@ def predict():
                              username=current_user.username)
 
 # Initialize database on startup
+init_db()
+
+# For local development
 if __name__ == "__main__":
-    init_db()
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
